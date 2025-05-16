@@ -50,16 +50,19 @@ export default function CreateTask() {
   }, [organization])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
-
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+  
     if (!title.trim() || !assignee.trim()) {
-      setError("All fields are required.")
-      setLoading(false)
-      return
+      setError("All fields are required.");
+      setLoading(false);
+      return;
     }
-
+  
+    const assigneeObj = members.find((m) => m.id === assignee);
+    const assigneeName = assigneeObj?.name || "Unknown";
+  
     const { error: insertError } = await supabase.from("tasks").insert({
       title,
       assigned_to: assignee,
@@ -67,9 +70,9 @@ export default function CreateTask() {
       priority,
       deadline,
       team_id: organization?.id,
-      username: user?.firstName || user?.username || "Unknown",
-      organization_name: organization?.name || "Unknown"
-    })
+      username: assigneeName, // ✅ correct now
+      organization_name: organization?.name || "Unknown",
+    });
 
     if (insertError) {
       console.error("Error creating task:", insertError)
