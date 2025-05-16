@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Menu, X, Home, ClipboardList, BarChart3, Users, ChevronRight } from "lucide-react"
+import { Menu, X, Home, ClipboardList, BarChart3, ChevronRight, LayoutDashboard } from "lucide-react"
 import { SignedIn, SignedOut, SignOutButton, UserButton, useUser, useOrganization } from "@clerk/nextjs"
 
 export default function Navbar() {
@@ -15,7 +15,8 @@ export default function Navbar() {
   const pathname = usePathname()
 
   const links = [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
+    { name: "Home", href: "/", icon: Home },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Assign Task", href: "/create-task", icon: ClipboardList },
     { name: "Reports", href: "/team-overview", icon: BarChart3 },
   ]
@@ -56,14 +57,7 @@ export default function Navbar() {
           href="/"
           className="flex items-center text-xl font-bold tracking-tight transition-transform hover:scale-105"
         >
-          <Image
-            src="/lavure.png"
-            alt="Lavure AI Logo"
-            width={32}
-            height={32}
-            className="mr-2"
-            priority
-          />
+          <Image src="/lavure.png" alt="Lavure AI Logo" width={32} height={32} className="mr-2" priority />
           <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
             Lavure
           </span>
