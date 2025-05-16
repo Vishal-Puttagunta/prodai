@@ -1,8 +1,6 @@
 // pages/api/clerk-user.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { Clerk } from '@clerk/clerk-sdk-node'
-
-const clerk = Clerk({ secretKey: process.env.CLERK_SECRET_KEY! })
+import { clerkClient } from '@clerk/nextjs/server'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId } = req.query
@@ -12,7 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const user = await clerk.users.getUser(userId)
+    // @ts-ignore - Clerk types are not properly exported
+    const user = await clerkClient.users.getUser(userId)
     const name = `${user.firstName || ''} ${user.lastName || ''}`.trim()
     const email = user.emailAddresses?.[0]?.emailAddress || ''
     return res.status(200).json({ name, email })
