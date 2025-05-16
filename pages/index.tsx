@@ -14,6 +14,7 @@ import {
   ChevronRight,
   BarChart2,
 } from "lucide-react"
+import Image from "next/image"
 
 export default function HomePage() {
   const { user } = useUser()
@@ -172,7 +173,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Analyze Performance</h3>
                 <p className="text-gray-600">
-                  Gain insights into your productivity with detailed analytics and performance metrics.
+                  Use our AI generated reports to gain insights into your productivity with detailed analytics and performance metrics.
                 </p>
               </div>
             </div>
@@ -187,7 +188,7 @@ export default function HomePage() {
             <div>
               <h2 className="text-2xl font-bold text-white md:text-3xl">Ready to boost your productivity?</h2>
               <p className="mt-3 text-purple-100 max-w-3xl">
-                Join thousands of users who have transformed their task management experience with Lavure.
+                Join others who have transformed their task management experience with Lavure.
               </p>
             </div>
             <div className="mt-8 md:mt-0">
@@ -216,9 +217,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center">
-              <div className="h-8 w-8 bg-purple-600 rounded-md flex items-center justify-center mr-2">
-                <CheckCircle className="h-5 w-5 text-white" />
-              </div>
+              <Image
+                src="/lavure.png"
+                alt="Lavure Logo"
+                width={32}
+                height={32}
+                className="mr-2"
+              />
               <span className="text-xl font-bold text-gray-900">Lavure</span>
             </div>
             <div className="mt-4 md:mt-0">
