@@ -13,16 +13,20 @@
     "@clerk/nextjs": "^6.19.2",
     "@supabase/supabase-js": "^2.49.4",
     "lucide-react": "^0.510.0",
+    "micro": "^10.0.1",
     "next": "15.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "stripe": "^18.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/micro": "^7.3.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/stripe": "^8.0.416",
     "autoprefixer": "^10.4.19",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",

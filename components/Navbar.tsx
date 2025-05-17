@@ -4,22 +4,31 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Menu, X, Home, ClipboardList, BarChart3, ChevronRight, LayoutDashboard } from "lucide-react"
+import { Menu, X, Home, ClipboardList, BarChart3, ChevronRight, LayoutDashboard, DollarSign } from "lucide-react"
 import { SignedIn, SignedOut, SignOutButton, UserButton, useUser, useOrganization } from "@clerk/nextjs"
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [hasPaid, setHasPaid] = useState(false)
   const { user } = useUser()
   const { organization } = useOrganization()
   const pathname = usePathname()
 
-  const links = [
-    { name: "Home", href: "/", icon: Home },
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Assign Task", href: "/create-task", icon: ClipboardList },
-    { name: "Reports", href: "/team-overview", icon: BarChart3 },
-  ]
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user?.id) return
+      const res = await fetch("/api/check-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id })
+      })
+      const result = await res.json()
+      setHasPaid(result.ok)
+    }
+
+    checkSubscription()
+  }, [user])
 
   useEffect(() => {
     const checkRole = async () => {
@@ -43,12 +52,22 @@ export default function Navbar() {
     checkRole()
   }, [user, organization])
 
-  const filteredLinks = links.filter((link) => {
-    if (["Assign Task", "Manage Team"].includes(link.name)) {
-      return isAdmin
-    }
+  const allLinks = [
+    { name: "Home", href: "/", icon: Home },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Assign Task", href: "/create-task", icon: ClipboardList },
+    { name: "Reports", href: "/team-overview", icon: BarChart3 },
+  ]
+
+  const filteredLinks = allLinks.filter((link) => {
+    if (["Assign Task"].includes(link.name)) return isAdmin && hasPaid
+    if (["Reports"].includes(link.name)) return hasPaid
     return true
   })
+
+  if (!hasPaid && user) {
+    filteredLinks.push({ name: "Subscribe", href: "/subscribe", icon: DollarSign })
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
@@ -118,7 +137,6 @@ export default function Navbar() {
           </SignedIn>
         </nav>
 
-        {/* Mobile Menu Toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 transition-colors"
@@ -127,71 +145,6 @@ export default function Navbar() {
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
-
-      {/* Mobile Dropdown Menu */}
-      {mobileOpen && (
-        <div className="md:hidden px-4 pb-4 pt-2 space-y-1 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 animate-in slide-in-from-top duration-200">
-          {filteredLinks.map((link) => {
-            const isActive = pathname === link.href
-            const LinkIcon = link.icon
-
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`
-                  flex items-center justify-between rounded-md px-4 py-2.5 text-sm font-medium transition-colors
-                  ${
-                    isActive
-                      ? "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300"
-                      : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800/50"
-                  }
-                `}
-                onClick={() => setMobileOpen(false)}
-              >
-                <div className="flex items-center">
-                  <LinkIcon
-                    className={`mr-2 h-4 w-4 ${isActive ? "text-purple-500" : "text-gray-500 dark:text-gray-400"}`}
-                  />
-                  {link.name}
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </Link>
-            )
-          })}
-
-          <div className="my-2 border-t border-gray-200 dark:border-gray-800"></div>
-
-          <SignedOut>
-            <Link
-              href="/sign-in"
-              className="flex items-center justify-between rounded-md px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800/50 transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              <span>Sign In</span>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            </Link>
-            <Link
-              href="/sign-up"
-              className="flex items-center justify-between rounded-md px-4 py-2.5 text-sm font-medium text-purple-600 hover:bg-purple-50 dark:text-purple-300 dark:hover:bg-purple-900/20 transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              <span>Sign Up</span>
-              <ChevronRight className="h-4 w-4 text-purple-500" />
-            </Link>
-          </SignedOut>
-
-          <SignedIn>
-            <div className="px-4 py-2.5">
-              <SignOutButton>
-                <button className="w-full text-left text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">
-                  Sign Out
-                </button>
-              </SignOutButton>
-            </div>
-          </SignedIn>
-        </div>
-      )}
     </header>
   )
 }

@@ -1,23 +1,74 @@
 "use client"
 
-import { SignedIn, SignedOut, RedirectToSignIn, useOrganization, OrganizationSwitcher } from "@clerk/nextjs"
+import {
+  SignedIn,
+  SignedOut,
+  RedirectToSignIn,
+  useOrganization,
+  useUser,
+  OrganizationSwitcher
+} from "@clerk/nextjs"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { supabase } from "../lib/supabaseClient"
-import { CheckCircle, Clock, XCircle, RefreshCw, Loader2, Users, User, FileText, Briefcase, Download } from "lucide-react"
+import {
+  CheckCircle,
+  Clock,
+  XCircle,
+  RefreshCw,
+  Loader2,
+  Users,
+  User,
+  FileText,
+  Briefcase,
+  Download
+} from "lucide-react"
 
 type Member = {
-  id: string // Clerk user ID used for mapping
-  user_id: string // Same as id; optional, or remove if redundant
+  id: string
+  user_id: string
   name: string
   email: string
 }
 
 export default function TeamOverview() {
   const { organization } = useOrganization()
+  const { user } = useUser()
+  const router = useRouter()
+
   const [members, setMembers] = useState<Member[]>([])
   const [tasks, setTasks] = useState<Record<string, any[]>>({})
   const [loading, setLoading] = useState(true)
+  const [accessChecked, setAccessChecked] = useState(false)
 
+  // ✅ Updated: Check if user has access (subscribed or in org)
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (!user?.id) return
+  
+      try {
+        const res = await fetch("/api/check-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        })
+  
+        const result = await res.json()
+        if (!result.ok) {
+          router.push("/subscribe")
+        } else {
+          setAccessChecked(true)
+        }
+      } catch (err) {
+        console.error("Failed to verify subscription:", err)
+      }
+    }
+  
+    checkAccess()
+  }, [user, organization, router])
+  
+
+  // Load organization members and their tasks
   useEffect(() => {
     const fetchData = async () => {
       if (!organization?.id) return
@@ -85,6 +136,8 @@ export default function TeamOverview() {
     link.click()
     link.remove()
   }
+
+  if (!accessChecked) return null
 
   return (
     <>
@@ -160,7 +213,6 @@ export default function TeamOverview() {
                               <h3 className="font-semibold text-lg text-gray-800">{member.name}</h3>
                               <p className="text-sm text-gray-500">{member.email}</p>
 
-                              {/* Task summary */}
                               <div className="mt-3 flex flex-wrap gap-2">
                                 {memberTasks.length > 0 ? (
                                   <>
