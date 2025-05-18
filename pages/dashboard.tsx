@@ -28,6 +28,8 @@ export default function Dashboard() {
         .from("tasks")
         .select("*, deadline, date_completed")
         .eq("assigned_to", user.id)
+        .eq("is_deleted", false)  // ⬅️ This is the key addition
+
 
       if (error) {
         console.error("Error fetching tasks:", error)
