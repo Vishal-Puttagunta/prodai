@@ -41,6 +41,25 @@ export default function TeamOverview() {
   const [loading, setLoading] = useState(true)
   const [accessChecked, setAccessChecked] = useState(false)
 
+  const handleDeleteTask = async (taskId: string, memberId: string) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ is_deleted: true })
+      .eq("id", taskId)
+  
+    if (error) {
+      console.error("Failed to delete task:", error)
+      return
+    }
+  
+    // Update UI immediately by removing the task from local state
+    setTasks((prev) => ({
+      ...prev,
+      [memberId]: prev[memberId].filter((task) => task.id !== taskId)
+    }))
+  }
+  
+
   // ✅ Updated: Check if user has access (subscribed or in org)
   useEffect(() => {
     const checkAccess = async () => {
@@ -85,6 +104,7 @@ export default function TeamOverview() {
             .select("*")
             .eq("assigned_to", member.id)
             .eq("team_id", organization.id)
+            .eq("is_deleted", false)
           if (error) console.warn("Task fetch error:", error)
           taskMap[member.id] = userTasks || []
         }
@@ -253,7 +273,17 @@ export default function TeamOverview() {
                             </h4>
                             <ul className="space-y-2">
                               {memberTasks.map((task) => (
-                                <li key={task.id} className="flex items-center justify-between text-sm">
+                                <li
+                                key={task.id}
+                                onClick={() => {
+                                  const confirmed = window.confirm("Are you sure you want to delete this task?")
+                                  if (confirmed) handleDeleteTask(task.id, member.id)
+                                }}
+                                className="flex items-center justify-between text-sm cursor-pointer hover:bg-red-50 px-2 py-1 rounded transition"
+                                title="Click to delete task"
+                              >
+                              
+                              
                                   <span className="truncate max-w-[70%] text-gray-900">{task.title}</span>
                                   <span
                                     className={`flex items-center text-xs px-2 py-0.5 rounded-full ${getStatusColor(task.status)}`}
