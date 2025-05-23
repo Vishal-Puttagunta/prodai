@@ -6,7 +6,6 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, Home, ClipboardList, BarChart3, ChevronRight, LayoutDashboard, DollarSign } from "lucide-react"
 import { SignedIn, SignedOut, SignOutButton, UserButton, useUser, useOrganization } from "@clerk/nextjs"
-import ManageSubscriptionButton from "./ManageSubscriptionButton"
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -127,7 +126,16 @@ export default function Navbar() {
           </SignedOut>
 
           <SignedIn>
-            {hasPaid && <ManageSubscriptionButton />}
+            {hasPaid && (
+              <a
+                href="https://billing.stripe.com/p/login/6oUaEX79j5IM0rCbtdeIw00" // Replace with your actual Stripe portal link
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800/50 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>Manage Subscription</span>
+              </a>
+            )}
             <div className="h-6 mx-2 border-l border-gray-200 dark:border-gray-700"></div>
             <UserButton
               afterSignOutUrl="/"
