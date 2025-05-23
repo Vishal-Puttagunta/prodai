@@ -6,6 +6,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, Home, ClipboardList, BarChart3, ChevronRight, LayoutDashboard, DollarSign } from "lucide-react"
 import { SignedIn, SignedOut, SignOutButton, UserButton, useUser, useOrganization } from "@clerk/nextjs"
+import ManageSubscriptionButton from "./ManageSubscriptionButton"
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -126,6 +127,8 @@ export default function Navbar() {
           </SignedOut>
 
           <SignedIn>
+            {hasPaid && <ManageSubscriptionButton />}
+            <div className="h-6 mx-2 border-l border-gray-200 dark:border-gray-700"></div>
             <UserButton
               afterSignOutUrl="/"
               appearance={{
